@@ -511,6 +511,21 @@ namespace CSObjectWrapEditor
 #endif
         }
 
+        static bool isDelegateInBlackList(Type type)
+        {
+            Debug.Assert(typeof(Delegate).IsAssignableFrom(type));
+
+            foreach (var exclude in BlackList)
+            {
+                if (type.FullName == exclude[0])
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         static bool isObsolete(Type type)
         {
             if (type == null) return false;
@@ -618,7 +633,13 @@ namespace CSObjectWrapEditor
             
             GenOne(null, (type, type_info) =>
             {
-                type_info.Set("types", types.ToList());
+                Dictionary<Type, List<FieldInfo>> typeToFields = new Dictionary<Type, List<FieldInfo>>();
+                foreach (Type enumTypeToGen in types)
+                {
+                    typeToFields.Add(enumTypeToGen, enumTypeToGen.GetFields(BindingFlags.GetField | BindingFlags.Public | BindingFlags.Static)
+                        .Where(field => !isObsolete(field) && !isMemberInBlackList(field)).ToList());
+                }
+                type_info.Set("typeToFields", typeToFields);
             }, templateRef.LuaEnumWrap, textWriter);
 
             textWriter.Close();
@@ -879,7 +900,7 @@ namespace CSObjectWrapEditor
         {
             string filePath = save_path + "DelegatesGensBridge.cs";
             StreamWriter textWriter = new StreamWriter(filePath, false, Encoding.UTF8);
-            types = types.Where(type => !type.GetMethod("Invoke").GetParameters().Any(paramInfo => paramInfo.ParameterType.IsGenericParameter));
+            types = types.Where(type => !isDelegateInBlackList(type) && !type.GetMethod("Invoke").GetParameters().Any(paramInfo => paramInfo.ParameterType.IsGenericParameter));
             var hotfxDelegates = new List<MethodInfoSimulation>();
             var comparer = new MethodInfoSimulationComparer();
 

@@ -18,8 +18,7 @@ local enum_or_op = debug.getmetatable(CS.System.Reflection.BindingFlags.Public).
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    <%ForEachCsList(types, function(type)
-	local fields = type:GetFields(enum_or_op(CS.System.Reflection.BindingFlags.Public, CS.System.Reflection.BindingFlags.Static))
+    <%ForEachCsDict(typeToFields, function(type, fields)
 	%>
     public class <%=CSVariableName(type)%>Wrap
     {
@@ -29,7 +28,7 @@ namespace XLua.CSObjectWrap
 		    Utils.BeginObjectRegister(typeof(<%=CsFullTypeName(type)%>), L, translator, 0, 0, 0, 0);
 			Utils.EndObjectRegister(typeof(<%=CsFullTypeName(type)%>), L, translator, null, null, null, null, null);
 			
-			Utils.BeginClassRegister(typeof(<%=CsFullTypeName(type)%>), L, null, <%=fields.Length + 1%>, 0, 0);
+			Utils.BeginClassRegister(typeof(<%=CsFullTypeName(type)%>), L, null, <%=fields.Count + 1%>, 0, 0);
             <% ForEachCsList(fields, function(field) 
 			if field.Name == "value__" or IsObsolute(field) then return end
 			%>
@@ -49,7 +48,7 @@ namespace XLua.CSObjectWrap
             {
                 translator.Push<%=CSVariableName(type)%>(L, (<%=CsFullTypeName(type)%>)LuaAPI.xlua_tointeger(L, 1));
             }
-			<%if fields.Length > 0 then%>
+			<%if fields.Count > 0 then%>
             else if(lua_type == LuaTypes.LUA_TSTRING)
             {
 			    <%

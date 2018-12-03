@@ -147,6 +147,17 @@ function ForEachCsList(...)
 	end
 end
 
+function ForEachCsDict(...)
+    local dict_count = select('#', ...) - 1
+	local callback = select(dict_count + 1, ...)
+	for i = 1, dict_count do
+	    local dict = select(i, ...)
+		for key, val in pairs(dict) do
+			callback(key, val)
+		end
+	end
+end
+
 function CalcCsList(list, predicate)
     local count = 0
     for i = 0, (list.Count or list.Length) - 1 do 

@@ -19,8 +19,7 @@ namespace XLua
 {
 	public partial class ObjectTranslator
     {
-    <%ForEachCsList(types, function(type)
-	local fields = type:GetFields(enum_or_op(CS.System.Reflection.BindingFlags.Public, CS.System.Reflection.BindingFlags.Static))
+    <%ForEachCsDict(typeToFields, function(type, fields)
 	local v_type_name = CSVariableName(type)
 	%>
 		public void __Register<%=v_type_name%>(RealStatePtr L)
@@ -28,7 +27,7 @@ namespace XLua
 		    Utils.BeginObjectRegister(typeof(<%=CsFullTypeName(type)%>), L, this, 0, 0, 0, 0);
 			Utils.EndObjectRegister(typeof(<%=CsFullTypeName(type)%>), L, this, null, null, null, null, null);
 			
-			Utils.BeginClassRegister(typeof(<%=CsFullTypeName(type)%>), L, null, <%=fields.Length + 1%>, 0, 0);
+			Utils.BeginClassRegister(typeof(<%=CsFullTypeName(type)%>), L, null, <%=fields.Count + 1%>, 0, 0);
             <% ForEachCsList(fields, function(field) 
 			if field.Name == "value__" or IsObsolute(field) then return end
 			%>
@@ -46,7 +45,7 @@ namespace XLua
             {
                 Push<%=v_type_name%>(L, (<%=CsFullTypeName(type)%>)LuaAPI.xlua_tointeger(L, 1));
             }
-			<%if fields.Length > 0 then%>
+			<%if fields.Count > 0 then%>
             else if(lua_type == LuaTypes.LUA_TSTRING)
             {
 			    <%
