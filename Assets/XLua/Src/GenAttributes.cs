@@ -126,43 +126,6 @@ namespace XLua
     internal class HotfixDelegateAttribute : Attribute
     {
     }
-
-#if !XLUA_GENERAL
-    public static class SysGenConfig
-    {
-        [GCOptimize]
-        static List<Type> GCOptimize
-        {
-            get
-            {
-                return new List<Type>() {
-                    typeof(UnityEngine.Vector2),
-                    typeof(UnityEngine.Vector3),
-                    typeof(UnityEngine.Vector4),
-                    typeof(UnityEngine.Color),
-                    typeof(UnityEngine.Quaternion),
-                    typeof(UnityEngine.Ray),
-                    typeof(UnityEngine.Bounds),
-                    typeof(UnityEngine.Ray2D),
-                };
-            }
-        }
-
-        [AdditionalProperties]
-        static Dictionary<Type, List<string>> AdditionalProperties
-        {
-            get
-            {
-                return new Dictionary<Type, List<string>>()
-                {
-                    { typeof(UnityEngine.Ray), new List<string>() { "origin", "direction" } },
-                    { typeof(UnityEngine.Ray2D), new List<string>() { "origin", "direction" } },
-                    { typeof(UnityEngine.Bounds), new List<string>() { "center", "extents" } },
-                };
-            }
-        }
-    }
-#endif
 }
 
 
